@@ -287,6 +287,7 @@ def run():
                 view = RoleAssignView(search_for_id_and_assign(roles_buttons_filename, message.id))
 
                 await message.edit(content=message.content, view=view)
+                await asyncio.sleep(5)
 
 
     @bot.event
