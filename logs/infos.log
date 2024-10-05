@@ -1,0 +1,5 @@
+INFO       - 2024-10-05 11:26:06,057 - client          : logging in using static token
+INFO       - 2024-10-05 11:26:07,018 - gateway         : Shard ID None has connected to Gateway (Session ID: 10542718b1df0da471630b9ddf7062a4).
+WARNING    - 2024-10-05 11:26:57,811 - http            : We are being rate limited. PATCH https://discord.com/api/v10/channels/1287435867883049030/messages/1291073906966270003 responded with 429. Retrying in 5.26 seconds.
+WARNING    - 2024-10-05 11:27:03,607 - http            : We are being rate limited. PATCH https://discord.com/api/v10/channels/1287435867883049030/messages/1291073886078636052 responded with 429. Retrying in 5.47 seconds.
+WARNING    - 2024-10-05 11:27:09,597 - http            : We are being rate limited. PATCH https://discord.com/api/v10/channels/1287435867883049030/messages/1291073868814880928 responded with 429. Retrying in 5.48 seconds.
