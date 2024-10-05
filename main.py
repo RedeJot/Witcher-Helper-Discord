@@ -32,12 +32,80 @@ def run():
     bot = commands.Bot(command_prefix=commands.when_mentioned_or('!'), intents=intents)
 
 
+    def save_buttons_to_file(data, base_filename):
+        filename = base_filename
+        with open(filename, mode='w') as file:
+            json.dump(data, file, indent=4)
+            logger.info(f"Saved buttons to {filename}")
+
+    def load_data_from_file(filename):
+        if not os.path.exists(filename):
+            logger.info(f"File {filename} doesn't exist. Returning empty data.")
+            return []
+        with open(filename, mode="r") as file:
+            logger.info(f"Loading data from {filename}")
+            return json.load(file)
+        
+    def search_for_id_and_assign(filename, message_id):
+        data = load_data_from_file(filename)
+
+        for item in data:
+            if item['id'] == message_id:
+                logger.info(f"Loaded roles: {item["roles_and_labels"]}")
+                return item['roles_and_labels']
+        
+        
+    def add_roles_and_labels(filename, new_id, new_roles_and_labels):
+        data = []
+        if not os.path.exists(filename):
+            new_data = {
+                "id": new_id,
+                "roles_and_labels": new_roles_and_labels
+            }
+            data.append(new_data)
+            save_buttons_to_file(data, filename)
+        else:
+            data = load_data_from_file(filename)
+
+            for item in data:
+                if item['id'] == new_id:
+                    logger.info(f"{new_id} already exists.")
+                    return
+                
+            new_entry = {
+                "id": new_id,
+                "roles_and_labels": new_roles_and_labels
+            }
+            data.append(new_entry)
+
+            logger.info(f"Added new entry with ID: {new_id}")
+            save_buttons_to_file(data, filename)
+
+    def delete_roles_and_labels(filename, delete_id):
+        data = load_data_from_file(filename)
+
+        for item in data:
+            if item['id'] == delete_id:
+                delete_index = data.index(item)
+                del data[delete_index]
+
+        save_buttons_to_file(data, filename)
+
+    def on_delete_event(message_id):
+        logger.info("Deleted roles!")
+        delete_roles_and_labels(roles_buttons_filename, message_id)
+
+    def ordinal(n):
+        if 10 <= n % 100 <= 13:
+            suffix = "th"
+        else:
+            suffix = {1: 'st', 2: 'nd', 3:'rd'}.get(n % 10, 'th')
+        return f"{n}{suffix}"
 
 
     class RoleAssignView(discord.ui.View):
         def __init__(self, roles_and_labels):
             super().__init__(timeout=None)
-            logger.info(f"In class: {roles_and_labels}")
             index = 0
             self.roles_and_labels = roles_and_labels
 
@@ -78,9 +146,11 @@ def run():
             
 
         async def send_meow_message(self):
-            random_days = random.sample([1,2,3,4,5,6,7], 2)
+            random_days = random.sample(range(1, 7), 2)
+            current_day = datetime.now().weekday() + 1
             treat_gif = "https://cdn.discordapp.com/attachments/883133741407555674/1289734618437910569/cat-tuxedo-cat.gif?ex=66fa8f37&is=66f93db7&hm=412f04cb7cedfe8a84ccf1e80fb0b2a39d49dbbcda74f67a62eb58ac8bb8fe2b&"
-            current_day = datetime.now().weekday()
+            logger.info(f"Current day of the week: {ordinal(current_day)}")
+            
             with open('cat_gifs.txt', 'r') as file:
                 gifs = file.readlines()
             gifs = [gif.strip() for gif in gifs if gif.strip()]
@@ -173,85 +243,16 @@ def run():
             if role:
                 if role in user.roles:
                     await interaction.response.send_message("You have already accepted rules!", ephemeral=True)
+                    logger.info(f"User {user} tried to accept rules but already has accepted rules!.")
                 else:
                     await interaction.user.add_roles(role)
                     await interaction.response.send_message("Rules Accepted! Have a nice stay!", ephemeral=True)
+                    logger.info(f"User {user} accepted the rules.")
             else:
                 await interaction.response.send_message("Role doesn't exist!", ephemeral=True)
+                logger.info(f"Error giving role: Role doesn't exist!")
 
             
-    def save_buttons_to_file(data, base_filename):
-        filename = base_filename
-        with open(filename, mode='w') as file:
-            json.dump(data, file, indent=4)
-
-    def load_data_from_file(filename):
-        if not os.path.exists(filename):
-            return []
-        with open(filename, mode="r") as file:
-            return json.load(file)
-        
-    def search_for_id_and_assign(filename, message_id):
-        data = load_data_from_file(filename)
-
-        for item in data:
-            if item['id'] == message_id:
-                logger.info(f"Loaded roles: {item["roles_and_labels"]}")
-                logger.info("Roles buttons loaded!")
-                return item['roles_and_labels']
-        
-        
-    def add_roles_and_labels(filename, new_id, new_roles_and_labels):
-        data = []
-        if not os.path.exists(filename):
-            new_data = {
-                "id": new_id,
-                "roles_and_labels": new_roles_and_labels
-            }
-            data.append(new_data)
-            save_buttons_to_file(data, filename)
-        else:
-            data = load_data_from_file(filename)
-
-            for item in data:
-                if item['id'] == new_id:
-                    logger.info(f"{new_id} already exists.")
-                    return
-                
-            new_entry = {
-                "id": new_id,
-                "roles_and_labels": new_roles_and_labels
-            }
-            data.append(new_entry)
-
-            save_buttons_to_file(data, filename)
-            logger.info(f"Added new entry with ID: {new_id}")
-
-    def delete_roles_and_labels(filename, delete_id):
-        data = load_data_from_file(filename)
-
-        for item in data:
-            if item['id'] == delete_id:
-                delete_index = data.index(item)
-                del data[delete_index]
-
-        save_buttons_to_file(data, filename)
-
-
-    def on_delete_event(message_id):
-        logger.info("Deleted roles!")
-        delete_roles_and_labels(roles_buttons_filename, message_id)
-
-
-
-
-
-    def ordinal(n):
-        if 10 <= n % 100 <= 13:
-            suffix = "th"
-        else:
-            suffix = {1: 'st', 2: 'nd', 3:'rd'}.get(n % 10, 'th')
-        return f"{n}{suffix}"
     
 
 
@@ -262,7 +263,7 @@ def run():
     @tasks.loop(hours=168)
     async def random_days_refresh():
         global random_days
-        random_days = random.sample(range(7), 2)
+        random_days = random.sample(range(1, 7), 2)
         logger.info(f"Days refreshed {random_days}")
 
     ## Bot Status
@@ -356,12 +357,9 @@ def run():
         logger.info(f"Given data: {roles_and_labels}")
 
         for i in range(0, len(roles_and_labels), 2):
-            logger.info(f"Index: {i}")
             label = roles_and_labels[i]
             role_name = roles_and_labels[i+1]
             
-
-            logger.info(f"In loop: {label, role_name}")
             if not role_name:
                 error_message_2 = await ctx.send(f"Role {role_name} not found.")
                 await asyncio.sleep(5)
@@ -370,7 +368,7 @@ def run():
             
             roles_and_labels_parsed.append(label)
             roles_and_labels_parsed.append(role_name)
-            logger.info(f"Added: {roles_and_labels_parsed}")
+            logger.info(f"User given data: {roles_and_labels_parsed}")
 
         view = RoleAssignView(roles_and_labels_parsed)
         
