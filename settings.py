@@ -7,49 +7,51 @@ load_dotenv()
 
 DISCORD_API_SECRET = os.getenv("DISCORD_API_TOKEN")
 CAT_API_SECRET = os.getenv("CAT_API_KEY")
+GENERAL_CHANNEL_ID = os.getenv("GENERAL_CHANNEL_ID")
+ROLES_CHANNEL_ID = os.getenv("ROLES_CHANNEL_ID")
+ANNOUNCEMENTS_CHANNEL_ID = os.getenv("ANNOUNCEMENTS_CHANNEL_ID")
+ADMIN_ROLE_ID = os.getenv("ADMIN_ROLE_ID")
 
 
 LOGGING_CONFIG = {
     "version": 1,
     "disabled_existing_loggers": False,
     "formatters": {
-        "verbose":{
+        "verbose": {
             "format": "%(levelname)-10s - %(asctime)s - %(module)-15s : %(message)s"
         },
-        "standard":{
-            "format": "%(levelname)-10s - %(name)-15s : %(message)s"
+        "standard": {"format": "%(levelname)-10s - %(name)-15s : %(message)s"},
+    },
+    "handlers": {
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "standard",
+        },
+        "console2": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "standard",
+        },
+        "file": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": "logs/infos.log",
+            "mode": "w",
+            "formatter": "verbose",
         },
     },
-    "handlers":{
-        "console":{
-            'level': "DEBUG",
-            'class': "logging.StreamHandler",
-            'formatter': "standard",
-        },
-        "console2":{
-            'level': "DEBUG",
-            'class': "logging.StreamHandler",
-            'formatter': "standard",
-        },
-        "file":{
-            'level': "INFO",
-            'class': "logging.FileHandler",
-            'filename': "logs/infos.log",
-            'mode': "w",
-            'formatter': "verbose",
-        },
-    },
-    "loggers":{
-        "bot":{
-            'handlers': ['console'],
+    "loggers": {
+        "bot": {
+            "handlers": ["console"],
             "level": "INFO",
             "propagate": False,
         },
-        "discord":{
-            'handlers': ['console2', "file"],
+        "discord": {
+            "handlers": ["console2", "file"],
             "level": "INFO",
             "propagate": False,
-        }
+        },
     },
 }
 
