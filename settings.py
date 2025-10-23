@@ -5,6 +5,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+LOG_DIR = "logs"
+if not os.path.exists(LOG_DIR):
+    os.makedirs(LOG_DIR)
+
 DISCORD_API_SECRET = os.getenv("DISCORD_API_TOKEN")
 CAT_API_SECRET = os.getenv("CAT_API_KEY")
 GENERAL_CHANNEL_ID = os.getenv("GENERAL_CHANNEL_ID")
